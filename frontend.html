@@ -1,0 +1,388 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌾 Smart Irrigation - AP</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+
+font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+background:
+linear-gradient(rgba(0,0,0,0.3),rgba(0,0,0,0.6)),
+url("https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=2000&auto=format&fit=crop");
+
+background-size:cover;
+background-position:center;
+background-attachment:fixed;
+
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:20px;
+
+}
+
+.container{
+
+width:100%;
+max-width:600px;
+padding:40px;
+
+border-radius:30px;
+
+background:rgba(255,255,255,0.12);
+backdrop-filter:blur(18px);
+-webkit-backdrop-filter:blur(18px);
+
+box-shadow:0 25px 50px rgba(0,0,0,0.4);
+
+text-align:center;
+
+border:1px solid rgba(255,255,255,0.2);
+
+}
+
+h2{
+
+color:#ffffff;
+margin-bottom:25px;
+font-size:26px;
+letter-spacing:1px;
+text-shadow:0 4px 12px rgba(0,0,0,0.5);
+
+}
+
+label{
+
+display:block;
+margin-top:15px;
+font-weight:600;
+color:#e0ffe0;
+font-size:14px;
+text-transform:uppercase;
+
+text-align:left;
+margin-left:10%;
+
+}
+
+select,input{
+
+padding:14px;
+width:85%;
+margin:8px auto;
+display:block;
+
+border-radius:12px;
+
+border:1px solid rgba(255,255,255,0.3);
+
+outline:none;
+
+font-size:16px;
+
+background:rgba(255,255,255,0.9);
+
+color:#2e7d32;
+
+}
+
+input:focus,select:focus{
+
+box-shadow:0 0 15px rgba(76,175,80,0.5);
+background:#ffffff;
+
+}
+
+.btn-group{
+
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+
+gap:10px;
+margin-top:20px;
+
+}
+
+button{
+
+padding:12px 20px;
+border:none;
+border-radius:12px;
+
+cursor:pointer;
+
+font-weight:bold;
+color:white;
+
+font-size:14px;
+
+transition:0.3s;
+
+box-shadow:0 4px 15px rgba(0,0,0,0.2);
+
+}
+
+.temp{background:linear-gradient(135deg,#fb8c00,#ffb300);}
+.calculate{background:linear-gradient(135deg,#43a047,#1b5e20);}
+.on{background:linear-gradient(135deg,#1e88e5,#1565c0);}
+.off{background:linear-gradient(135deg,#e53935,#b71c1c);}
+
+button:hover{
+
+transform:translateY(-3px);
+box-shadow:0 8px 25px rgba(255,255,255,0.4);
+
+}
+
+.info-box{
+
+background:rgba(0,0,0,0.6);
+
+padding:15px;
+
+margin-top:20px;
+
+border-radius:15px;
+
+font-weight:500;
+
+color:#ffffff;
+
+border-left:5px solid #4caf50;
+
+text-align:left;
+
+line-height:1.6;
+
+}
+
+#temperatureDisplay{
+
+color:#ffcc80;
+margin-top:10px;
+font-weight:bold;
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🌾 Smart Irrigation System</h2>
+<p style="color:#c8e6c9;margin-bottom:20px;">Precision Farming for Andhra Pradesh 🚜</p>
+
+<label>🌱 Select Crop</label>
+
+<select id="crop" onchange="updateSoil()">
+
+<option value="rice">🌾 Rice (Paddy)</option>
+<option value="sugarcane">🎋 Sugarcane</option>
+<option value="maize">🌽 Maize</option>
+<option value="cotton">☁ Cotton</option>
+<option value="groundnut">🥜 Groundnut</option>
+<option value="redgram">🌿 Red Gram</option>
+<option value="greengram">🌱 Green Gram</option>
+<option value="blackgram">🌱 Black Gram</option>
+<option value="sunflower">🌻 Sunflower</option>
+<option value="chilli">🌶 Chilli</option>
+<option value="turmeric">🟡 Turmeric</option>
+<option value="banana">🍌 Banana</option>
+<option value="mango">🥭 Mango</option>
+<option value="tomato">🍅 Tomato</option>
+<option value="onion">🧅 Onion</option>
+
+</select>
+
+<label>🌍 Soil Type</label>
+<input type="text" id="soil" readonly>
+
+<label>💧 Soil Moisture</label>
+
+<select id="moisture">
+
+<option value="dry">🔥 Dry</option>
+<option value="moist">🌤 Moist</option>
+<option value="wet">💦 Wet</option>
+
+</select>
+
+<label>📏 Land Area (Acres)</label>
+<input type="number" id="acres" placeholder="Enter acres">
+
+<div class="btn-group">
+
+<button class="temp" onclick="getTemperature()">🌡 Get Temperature</button>
+<button class="calculate" onclick="sendToBackend()">💧 Calculate Water</button>
+
+</div>
+
+<div class="info-box">
+
+<div id="temperatureDisplay">🌡 Temperature: --°C</div>
+
+<div id="result">💧 Water Required: --</div>
+
+<div id="motorStatus">🚰 Motor Status: Ready</div>
+
+</div>
+
+<div class="btn-group">
+
+<button class="on" onclick="motorOn()">🚰 Motor ON</button>
+<button class="off" onclick="motorOff()">⛔ Motor OFF</button>
+
+</div>
+
+</div>
+
+<script>
+
+function updateSoil(){
+
+let crop=document.getElementById("crop").value;
+
+let mapping={
+
+rice:"Clayey / Alluvial Soil",
+sugarcane:"Deep Loamy Soil",
+maize:"Well-drained Loamy Soil",
+cotton:"Black Soil (Regur)",
+groundnut:"Sandy Loam Soil",
+redgram:"Red Loamy Soil",
+greengram:"Sandy Loam / Loamy Soil",
+blackgram:"Clay Loam Soil",
+sunflower:"Well-drained Loam Soil",
+chilli:"Sandy Loam / Black Soil",
+turmeric:"Fertile Loamy Soil",
+banana:"Rich Loamy Soil",
+mango:"Well-drained Red Soil",
+tomato:"Sandy Loam Soil",
+onion:"Sandy Loam / Loamy Soil"
+
+};
+
+document.getElementById("soil").value=mapping[crop]||"";
+
+}
+
+function getTemperature(){
+
+document.getElementById("temperatureDisplay").innerHTML="🌡 Temperature: Fetching...";
+
+if(navigator.geolocation){
+
+navigator.geolocation.getCurrentPosition(function(position){
+
+let lat=position.coords.latitude;
+let lon=position.coords.longitude;
+
+fetch(`/get_temperature?lat=${lat}&lon=${lon}`)
+
+.then(response=>response.json())
+
+.then(data=>{
+
+document.getElementById("temperatureDisplay").innerHTML=`🌡 Temperature: ${data.temperature}°C`;
+
+});
+
+});
+
+}
+
+}
+
+function sendToBackend(){
+
+let acres=document.getElementById("acres").value;
+
+if(!acres){
+
+alert("Enter land area");
+return;
+
+}
+
+document.getElementById("result").innerHTML="💧 Calculating...";
+
+navigator.geolocation.getCurrentPosition(function(position){
+
+fetch("/calculate_water",{
+
+method:"POST",
+
+headers:{"Content-Type":"application/json"},
+
+body:JSON.stringify({
+
+crop:document.getElementById("crop").value,
+
+soil:document.getElementById("soil").value,
+
+moisture:document.getElementById("moisture").value,
+
+acres:acres,
+
+lat:position.coords.latitude,
+
+lon:position.coords.longitude
+
+})
+
+})
+
+.then(response=>response.json())
+
+.then(data=>{
+
+document.getElementById("result").innerHTML=`💧 Water Required: ${data.water} Liters`;
+
+document.getElementById("motorStatus").innerHTML=`🚰 Motor Status: ${data.motor}`;
+
+});
+
+});
+
+}
+
+function motorOn(){
+
+document.getElementById("motorStatus").innerHTML="🚰 Motor is ON";
+
+}
+
+function motorOff(){
+
+document.getElementById("motorStatus").innerHTML="⛔ Motor is OFF";
+
+}
+
+window.onload=function(){
+
+updateSoil();
+getTemperature();
+
+}
+
+</script>
+
+</body>
+</html>
+```
